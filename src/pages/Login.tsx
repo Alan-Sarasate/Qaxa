@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { FiLoader } from "react-icons/fi";
 import { Checkbox } from "../components/ui/checkbox";
+import { useNavigate } from "react-router-dom";
+
+
 export default function Login () {
+
+    const navigate = useNavigate()
 
     const [isSubmiting, setIsSubmiting] = useState(false)
     const [showPassword, setShowPassord] = useState(false)
@@ -13,7 +18,7 @@ export default function Login () {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const {user, getuser, login} = useAuth();
+    const {user, getuser, login, getme} = useAuth();
 
     useEffect(() => {
         getuser();
@@ -27,10 +32,19 @@ export default function Login () {
         setFunction(text)
     }
 
-    const handleSubmit = (email:string, password:string) => {
+    const handleSubmit = async (email:string, password:string) => {
         setIsSubmiting(submit => !submit)
-        login({email, password})
-        setIsSubmiting(submit => !submit)
+        try {
+            const loginResponse = await login({email, password})
+            getme(loginResponse?.data?.authToken || null)
+            navigate('/home')
+
+        } catch {
+            console.log("deu ruim")
+        } finally{
+            setIsSubmiting(submit => !submit)
+        }
+        
     }
 
     return (
