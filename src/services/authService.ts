@@ -1,3 +1,4 @@
+import { API_ROUTES, buildApiUrl} from "../configs/api"
 import type { User } from "../types/User"
 
 interface LoginProps {
@@ -15,17 +16,13 @@ interface LoginErrorResponse {
     payload: any
 }
 
-const baseUrl = import.meta.env.VITE_BACKEND_URL
+console.log('API_ROUTES', API_ROUTES)
 
 export const authService = {
 
     async login ({email, password}:LoginProps):Promise<LoginResponse>{
     
-        const loginPath = import.meta.env.VITE_AUTH_LOGIN
-
-        if(!baseUrl) throw new Error("URL do backend não encontrada")
-
-        const response = await fetch(`${baseUrl}/${loginPath}`, {
+        const response = await fetch(buildApiUrl(API_ROUTES?.auth?.login), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -42,13 +39,10 @@ export const authService = {
     },
 
     async getme (authToken: string | null):Promise<User> {
-        const getmePath = import.meta.env.VITE_AUTH_ME
-
-        if(!baseUrl) throw new Error("URL do backend não encontrada")
 
         if(!authToken) throw new Error ('Usuário não autenticado.')
 
-        const response = await fetch (`${baseUrl}/${getmePath}`, {
+        const response = await fetch (buildApiUrl(API_ROUTES?.auth?.me), {
             method: "GET",
             headers: {
                 "Content-Type" : "application/json",
