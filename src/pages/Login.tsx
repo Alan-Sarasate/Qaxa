@@ -6,23 +6,24 @@ import useAuth from "../hooks/useAuth";
 import { FiLoader } from "react-icons/fi";
 import { Checkbox } from "../components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
+import RouterPaths from "../configs/routerPaths";
 
 
 export default function Login () {
 
     const navigate = useNavigate()
-
-    const [isSubmiting, setIsSubmiting] = useState(false)
+    
+    const {login, isAuthenticated, isLoading} = useAuth();
+    
     const [showPassword, setShowPassord] = useState(false)
     
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const {user, getuser, login, getme} = useAuth();
 
     useEffect(() => {
-        getuser();
-    },[])
+        if(isAuthenticated) navigate(RouterPaths?.homePath || '/home', {replace: true})
+    },[isAuthenticated])
 
     const handleShowPassword = () => {
         setShowPassord(showPassword => !showPassword)
@@ -30,21 +31,6 @@ export default function Login () {
 
     const handleChangeText = (text:string, setFunction: (value:string) => void) => {
         setFunction(text)
-    }
-
-    const handleSubmit = async (email:string, password:string) => {
-        setIsSubmiting(submit => !submit)
-        try {
-            const loginResponse = await login({email, password})
-            getme(loginResponse?.data?.authToken || null)
-            navigate('/home')
-
-        } catch {
-            console.log("deu ruim")
-        } finally{
-            setIsSubmiting(submit => !submit)
-        }
-        
     }
 
     return (
@@ -55,9 +41,8 @@ export default function Login () {
                     <span className="text-sm text-gray-400">Faça login em sua conta Qaxa.</span>
                 </div>
                 <div className="flex flex-col gap-3 w-full">
-                    {!!user ? <div className="text-black">{user?.name || "Xereca"}</div> : null}
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="email">E-mail {` ${email}`}</Label>
+                        <Label htmlFor="email">E-mail</Label>
                         <Input 
                             id="email"
                             value={email}
@@ -67,7 +52,7 @@ export default function Login () {
                             type="email"/>
                     </div>
                     <div className="flex flex-col gap-2 justify-end">
-                        <Label htmlFor="password">Senha {` ${password}`}</Label>
+                        <Label htmlFor="password">Senha</Label>
                         <Input 
                             id="password" 
                             value={password}
@@ -87,9 +72,9 @@ export default function Login () {
                     <Button
                         type="submit"
                         className="w-fit cursor-pointer"
-                        onClick={() => handleSubmit(email, password)}>
+                        onClick={() => login(email, password)}>
                             <span className="!text-white">Login</span>
-                            {isSubmiting ?? <FiLoader />}
+                            {isLoading ?? <FiLoader />}
                             
                     </Button>
                 </div>

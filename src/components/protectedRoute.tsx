@@ -1,27 +1,24 @@
-import { useEffect, useState } from "react"
 import { Navigate, Outlet } from "react-router-dom"
 import RouterPaths from "../configs/routerPaths"
-import useAuth from "../hooks/useAuth"
+import { useAuthStore } from "../stores/useAuthStore"
 
 const ProtectedRoute = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-    const { getme} = useAuth()
+    const { isAuthenticated, isLoading } = useAuthStore()
 
-    useEffect(() => {
-        const authToken = localStorage.getItem('@authToken')
-        console.log("AQUI", authToken)
-        console.log(!!authToken)
-        setIsLoggedIn(!!authToken)
-        console.log("OU AQUI", isLoggedIn)
-        if(isLoggedIn) getme(authToken)
-    },[])
+    console.log('⏰ [TEMPO ?] ProtectedRoute renderizou:', { isAuthenticated, isLoading })
 
-    if(!isLoggedIn) {
-        return <Navigate to={RouterPaths?.loginPath}/>
+    if(isLoading) {
+       console.log('⏰ Mostrando Carregando...') 
+       return <div>Carregando...</div>
+    } 
+
+    if(!isAuthenticated) {
+        console.log('⏰ Redirecionando pro login')
+        return <Navigate to={RouterPaths?.loginPath} replace/>
     }
 
+    console.log('⏰ Liberando acesso')
     return <Outlet/>
-
 }
 
 export default ProtectedRoute
