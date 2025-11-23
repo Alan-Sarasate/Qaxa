@@ -39,7 +39,8 @@ function useAuth () {
 
             navigate(RouterPaths?.homePath ?? '/home')
         }catch(error) {
-            throw error
+            clearAuth()
+            alert(error)
         }finally {
             setIsLoading(false)
         }
